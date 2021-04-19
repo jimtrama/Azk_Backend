@@ -2,6 +2,7 @@ const User = require('../models/users');
 const Expense = require('./../models/expenses');
 const File = require('./../models/files');
 const cors = require('cors');
+const fs = require('fs')
 
 function main(app) {
     app.use(cors({ origin: process.env.REACT_APP_SITE }));
@@ -24,13 +25,13 @@ function main(app) {
                         const user = file.users[k];
                         if (user.username == name && !user.signed) {
                             expensesToReturn.push(expense);
-                            flag=true;
+                            flag = true;
                             break loop1;
                         }
                     }
                 }
             }
-            if (expense.files[1]&&!flag) {
+            if (expense.files[1] && !flag) {
                 loop2:
                 for (let i = 0; i < expense.files[1].length; i++) {
                     const arrayOffiles = expense.files[1][i];
@@ -55,7 +56,7 @@ function main(app) {
 
     })
     app.get('/expenses/active', (req, res) => {
-        
+
         Expense.find({ "active": 1 }).then(result => {
             if (result) {
                 res.send(result);
@@ -80,26 +81,26 @@ function main(app) {
         })
 
     })
-    app.post('/newexpense',async (req, res) => {
+    app.post('/newexpense', async (req, res) => {
         let name = req.body.name;
         let cae = req.body.cae;
         let amount = req.body.amount;
         let active = req.body.active;
         let files = req.body.files;
         let project = req.body.project;
-        const checkExistance = await Expense.find({"name":name});
-        if(checkExistance.length>0){
-            res.send({error:"name exists"});
+        const checkExistance = await Expense.find({ "name": name });
+        if (checkExistance.length > 0) {
+            res.send({ error: "name exists" });
             return;
         }
-        
+
         const expense = new Expense({
             name,
             cae,
             amount,
             project,
-            provider:"",
-            afm:" ",
+            provider: "",
+            afm: " ",
             active,
             files
         })
@@ -138,7 +139,7 @@ function main(app) {
 
 
     })
-    app.post('/editexpense',(req,res)=>{
+    app.post('/editexpense', (req, res) => {
         console.log(req.body);
         let name = req.body.name;
         let cae = req.body.cae;
@@ -149,13 +150,60 @@ function main(app) {
         let project = req.body.project;
         let id = req.body.expId;
         console.log(provider);
-        Expense.findByIdAndUpdate(id,{cae,amount,provider,afm,active,project},(err,doc)=>{
-            res.send({doc});
+        Expense.findByIdAndUpdate(id, { cae, amount, provider, afm, active, project }, (err, doc) => {
+            res.send({ doc });
         })
         // Expense.findByIdAndUpdate(id,{name,cae,amount,provider,afm,active,project},(err,doc)=>{
         //     res.send({doc});
         // })
-        
+
+    })
+    app.post('/delexpense', async (req, res) => {
+        console.log(req.body);
+        let id = req.body.id;
+        let name = req.body.name;
+        let date = req.body.date;
+        let filesId = JSON.parse(req.body.data);
+        let flag = true;
+        let pathToexpenseFolder = "/";
+        for (let id of filesId) {
+            if (flag) {
+                let file = await File.findByIdAndDelete(id);
+                console.log(file);
+                let found = false
+                pathToexpenseFolder += file.path.split("/").map(folder => {
+                    if (folder.includes(name)) {
+                        found = true;
+                        return folder;
+                    } else
+                        if (!found) {
+                            return folder;
+                        } else {
+                            return null;
+                        }
+                }).filter(l => { if (l) return true }).join("/")
+
+                flag = false;
+            } else {
+                await File.findByIdAndDelete(id);
+            }
+
+
+        }
+        await Expense.findByIdAndDelete(id);
+        fs.rmdirSync(pathToexpenseFolder, { recursive: true }, (err) => {
+            if (err) {
+                console.log(err);
+                res.send({ ok: false })
+                return;
+            }
+            console.log("file " + pathToexpenseFolder + " is deleted");
+        });
+
+
+        res.send({ ok: true })
+
+
     })
 
 

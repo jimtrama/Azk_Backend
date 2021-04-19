@@ -4,7 +4,7 @@ const File = require('./../models/files');
 const Expense = require('./../models/expenses');
 const User = require('./../models/users')
 const cors = require('cors');
-const pathToDir = "C:/Expenses";
+const pathToDir = "/Users/jim/Desktop/data/expenses";
 function main(app) {
     app.use(cors({ origin: `${process.env.REACT_APP_SITE}` }));
     app.get('/', async (req, res) => {

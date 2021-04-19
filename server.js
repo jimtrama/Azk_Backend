@@ -69,7 +69,7 @@ require('./app/routes')(app)
 mongoose.connect("mongodb://localhost:27017/azk").then((res) => {
     //console.log(res);
     console.log("Connected to Db");
-    http.createServer(options, app).listen(port, () => {
+    http.createServer(app).listen(port, () => {
         console.log("Server Running \nPORT " + port);
     });
 

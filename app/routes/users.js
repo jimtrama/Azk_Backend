@@ -1,8 +1,8 @@
 const User = require('./../models/users');
 const fs = require('fs');
 var cors = require('cors');
-let pathToDir = "C:/Signs";
-let pathToDirAvatar = "C:/Avatars";
+let pathToDir = "/Users/jim/Desktop/data/signs";
+let pathToDirAvatar = "/Users/jim/Desktop/data/avatars";
 function main(app) {
     //app.use(cors({ origin: "*" }));
 
@@ -34,7 +34,7 @@ function main(app) {
                 dataToUpDate[key] = obj[key];
             }
         }
-        
+
         if (Object.keys(dataToUpDate).length === 0 && !sign && !avatar) {
             res.send({ success: "notthing to update" });
             return;
@@ -72,8 +72,20 @@ function main(app) {
 
     })
     app.post('/newuser', (req, res) => {
-        let username = req.body.username;
-        let password = req.body.password;
+        let data = JSON.parse(req.body.data);
+        console.log(data);
+        let dataToUpDate = {};
+
+        for (let obj of data) {
+            console.log(obj);
+            for (let key in obj) {
+                dataToUpDate[key] = obj[key];
+            }
+        }
+        let username = dataToUpDate.username;
+        let password = dataToUpDate.password;
+        let name = dataToUpDate.name;
+        let nickname = dataToUpDate.nickname;
         let file = req.files.file;
         let fileName = file.name;
         if (file === null) {
@@ -88,6 +100,8 @@ function main(app) {
                 const user = new User({
                     "username": username,
                     "password": password,
+                    "name": name,
+                    "nickname": nickname,
                     "sign": pathToDir + "/" + fileName
                 })
 
