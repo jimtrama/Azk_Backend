@@ -86,6 +86,7 @@ function main(app) {
         let cae = req.body.cae;
         let amount = req.body.amount;
         let active = req.body.active;
+        let afm = req.body.afm;
         let files = req.body.files;
         let project = req.body.project;
         const checkExistance = await Expense.find({ "name": name });
@@ -100,7 +101,7 @@ function main(app) {
             amount,
             project,
             provider: "",
-            afm: " ",
+            afm,
             active,
             files
         })
