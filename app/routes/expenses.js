@@ -113,28 +113,40 @@ function main(app) {
         let expenses = await Expense.find()
         let returnArray = [];
         for (let i = 0; i < expenses.length; i++) {
-            let filesIds = [];
             if (expenses[i].files[1]) {
-                expenses[i].files[1].forEach(arrayFiles => {
-                    arrayFiles.forEach(file => {
-                        if (file.stage == 6) {
-                            filesIds.push(file.fileId);
-                        }
-                    })
-
-
-                })
                 let amount = 0;
-                for (let i = 0; i < filesIds.length; i++) {
-                    let doc = await File.findById(filesIds[i])
-                    amount += doc.amount;
+                for (let j = 0; j < expenses[i].files[1].length; j++) {
+                    for (let k = 0; k < expenses[i].files[1][j].length; k++) {
+                        if (expenses[i].files[1][j][k].stage == 6) {
+
+                            let doc = await File.findById(expenses[i].files[1][j][k].fileId);
+
+                            let signedUsers = 0;
+                            for (let i = 0; i < doc.users.length; i++) {
+                                if (doc.users[i].signed) {
+                                    signedUsers++;
+
+                                }
+                            }
+
+                            if (signedUsers == doc.users.length) {
+                                amount += doc.amount;
+                            }
+
+
+                            returnArray.push({ id: expenses[i]._id, amount: amount })
+                        }
+                    }
+
+
                 }
-                returnArray.push({ id: expenses[i]._id, amount: amount })
+
 
             }
 
         }
-        res.send(returnArray);
+
+        res.send({ data: returnArray });
 
 
 
