@@ -1,5 +1,0 @@
-out 
-C:\Users\dim-e\AppData\Local\VirtualStore\Program Files (x86)\OpenSSL-Win32\bin
-
-run
-C:\Program Files (x86)\OpenSSL-Win32\bin
